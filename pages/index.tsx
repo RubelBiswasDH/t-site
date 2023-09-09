@@ -1,23 +1,25 @@
-import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import { useEffect, useState, useRef } from 'react'
 import Moveable from "react-moveable";
+// @ts-ignore
+import { useToImage } from '@hcorta/react-to-image';
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const [target, setTarget]: any = useState(null)
-  const [inputFile, setInputFile]: any = useState(null)
   const [targetImage, setTargetImage]: any = useState(null)
+
+  const { ref, isLoading, getSvg } = useToImage()
 
   const moveableRef: any = useRef(null)
 
   const onInputChange = (e: any) => {
     const file: any = e?.target?.files[0]
     if (file) {
+      setTarget(document.querySelector(".target"))
       setTargetImage(URL.createObjectURL(file))
     }
-    // console.log(e?.target.files)
   }
 
   const onEditButtonClick = () => {
@@ -25,12 +27,11 @@ export default function Home() {
   }
 
   const onSaveButtonClick = () => {
-    // setTargetClass('')
     setTarget(null)
-    console.log('target')
   }
+
   useEffect(() => {
-    setTarget(document.querySelector(".target"))
+    // setTarget(document.querySelector(".target"))
   }, [])
 
   return (
@@ -60,7 +61,7 @@ export default function Home() {
           delta, dist,
           transform,
           clientX, clientY,
-        }: OnDrag) => {
+        }: any) => {
           console.log("onDrag left, top", left, top);
           // target!.style.left = `${left}px`;
           // target!.style.top = `${top}px`;
@@ -90,18 +91,23 @@ export default function Home() {
             console.log("onResizeEnd", target, isDrag);
           }}
       />
-      <div>
+      <div ref={ref}>
         <img src="/images/t1.webp" />
+          <div className="container">
+            <div className="target" style={{ width: 300 }}>
+              <img style={{ width: '100%', height: '100%' }} src={targetImage} />
+            </div>
+          </div>
       </div>
-      <div className="container">
-        <div className="target" style={{ width: 300 }}>
-          <img style={{ width: '100%', height: '100%' }} src={targetImage} />
-        </div>
-      </div>
+     <div className='flex flex-col gap-2'>
       <input onChange={onInputChange} type='file' />
-      <button onClick={onEditButtonClick}>Edit</button>
-      <button onClick={onSaveButtonClick}>Save</button>
-
+      <div className='flex gap-5 w-full justify-between'>
+        <button className='bg-orange-300 px-8 py-1 w-1/2' onClick={onEditButtonClick}>Edit</button>
+        <button className='bg-green-300 px-8 py-1 w-1/2' onClick={onSaveButtonClick}>Save</button>
+      </div>
+      <button className='bg-green-300 px-8 py-1' onClick={getSvg}>Download Photo</button>
+      {isLoading && 'loading...'}
+     </div>
     </main>
   )
 }
